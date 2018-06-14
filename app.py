@@ -17,7 +17,7 @@ from flask import Flask, render_template, redirect, jsonify
 
 
 #engine = create_engine("sqlite:///hawaii.sqlite",connect_args={'check_same_thread':False})
-engine = create_engine("sqlite:///belly_button_biodiversity.sqlite")
+engine = create_engine("sqlite:///belly_button_biodiversity.sqlite", connect_args={'check_same_thread': False}, echo=True)
 
 # reflect an existing database into a new model
 Base = automap_base()
@@ -110,10 +110,10 @@ def wwf(sample):
 @app.route('/samples/<sample>')
 def smpl(sample):
     """Return a list of dictionaries containing sorted lists  for `otu_ids`"""
-    results = session.query(Samples.otu_id, getattr(Samples, sample)).order_by(getattr(Samples, sample).desc()).all()
+    results = session.query(Samples.otu_id, getattr(Samples, sample)).order_by(getattr(Samples, sample).desc()).limit(10).all()
     
     df = pd.DataFrame(results, columns=['otu_ids', 'sample_values'])
-    
+	
     otu_dict = {
             "otu_ids": df["otu_ids"].values.tolist(),
             "sample_values": df["sample_values"].values.tolist()

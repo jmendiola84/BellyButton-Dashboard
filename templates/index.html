@@ -10,6 +10,7 @@
     <script src="https://code.jquery.com/jquery.js"></script>
     <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	
    
 </head>
 <body>
@@ -30,19 +31,20 @@
 	<select id="selDataset" onchange="optionChanged(this.value)"></select>        
 
 		<script>
-	        Plotly.d3.json('/names', function(error, sample_names){
+	        Plotly.d3.json('/names', function(error, data){
             if (error) return console.warn(error);
 
 			var select = document.getElementById("selDataset"); 
 			
-			for(var i = 0; i < sample_names.length; i++) {
-				var opt = sample_names[i];
+			for(var i = 0; i < data.length; i++) {
+				var opt = data[i];
 				var el = document.createElement("option");
 				el.textContent = opt;
 				el.value = opt;
 				select.appendChild(el);
+				console.log(el.value);
 			}})
-
+		
 
 		</script>
 	
@@ -50,6 +52,45 @@
 			</div>
             <div class="col-md-7" >
               <div id="pie"></div>
+			      <script>
+function init() {
+	Plotly.d3.json('/samples/BB_940', function(error, otu_list){
+       if (error) return console.warn(error);
+		var  data = [{
+		"labels": otu_list[0]['otu_ids'],
+		"values": otu_list[0]['sample_values'],
+		"type": "pie"}]
+       var PIE = document.getElementById('pie');
+       Plotly.plot(PIE, data)
+   })
+}
+
+
+function updatePlotly(labels, values) {
+	console.log(values);
+	var PIE = document.getElementById("pie");
+	Plotly.restyle(PIE, "labels", [labels]);
+	Plotly.restyle(PIE, "values", [values]);
+}
+
+
+function optionChanged(dataset) {
+	console.log(dataset);
+	Plotly.d3.json('/samples/' + dataset, function(error, otu_list){
+    if (error) return console.warn(error);
+	var labels = []
+	var values = []
+	labels =  otu_list[0]['otu_ids']
+	values = otu_list[0]['sample_values']
+	updatePlotly(labels, values);
+   })
+
+}
+
+init();
+
+
+    </script>
             </div>
         </div>
         <div class="row">
